@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import OpenAI from "openai";
 import ExcelJS from 'exceljs';
 import { JigsawStack } from 'jigsawstack';
+import { readFileSync } from 'fs';
 
 dotenv.config();
 
