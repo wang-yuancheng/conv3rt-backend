@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import OpenAI from "openai";
 import ExcelJS from 'exceljs';
 import { JigsawStack } from 'jigsawstack';
+import fs from 'fs';
 
 dotenv.config();
 
@@ -106,8 +107,8 @@ function convertToJson(input) {
 
 // Process Excel data
 app.post('/api/process', async (req, res) => {
-  res.json(convertToJson(sample_response));
-  return;
+  // res.json(convertToJson(sample_response));
+  // return;
   try {
     // Extract values from first and fourth columns
     extractedData = [];
