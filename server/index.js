@@ -106,6 +106,7 @@ function convertToJson(input) {
 }
 
 // Process Excel data
+
 app.post('/api/process', async (req, res) => {
   // res.json(convertToJson(sample_response));
   // return;
@@ -122,18 +123,18 @@ app.post('/api/process', async (req, res) => {
       if (!Array.isArray(sheet.data)) {
         return;
       }
-
-      // Skip the first row (headers) and process remaining rows
-      for (let i = 1; i < sheet.data.length; i++) {
+      
+       for (let i = 0; i < sheet.data.length; i++) {
         const row = sheet.data[i];
-        if (row && row.length >= 4) {
-          const fourthValue = row[0]?.value || '';
-          extractedData.push(`${fourthValue}`.trim());
-        }
+       
+        const fourthValue = row[0]?.value || '';
+        extractedData.push(`${fourthValue}`.trim());
+        
       }
     });
 
-    console.log("Extracted Data:", extractedData)
+    console.log("Extracted Data:", extractedData.join(","))
+    // console.log("Extracted Data:" + ${extractedData.join(",")})
     const classificationJSON = JSON.parse(
       fs.readFileSync(classificationsPath, "utf8")
     );
@@ -146,7 +147,7 @@ app.post('/api/process', async (req, res) => {
         },
         {
           role: "user",
-          content: `Using the provided classification structure , classify each entry into its account type, primary, secondary, and tertiary classification. Return a response of ONLY valid comma-separated (CSV) list of classifications (in the format <account type>, <primary classification>, <secondary classification>, <tertiary classification>), maintaining the exact order of the input. \n\nEntries to classify:\n${extractedData.join(",")}`
+          content: `Using the provided classification structure , classify each entry into its account type, primary, secondary, and tertiary classification. Return a response of ONLY valid comma-separated (CSV) list of classifications (in the format <entry name>, <account type>, <primary classification>, <secondary classification>, <tertiary classification>), maintaining the exact order of the input. \n\nEntries to classify: \n${extractedData.join(",")}`
         }
       ],
       temperature: 0.1,
@@ -154,7 +155,7 @@ app.post('/api/process', async (req, res) => {
     });
 
     const classifications = response.choices[0].message.content.trim();
-    console.log("OpenAI Response:", classifications);
+    console.log("OpenAI Response:", convertToJson(classifications));
     res.json(convertToJson(classifications));
   } catch (error) {
     console.error('Error processing data:', error);
@@ -212,7 +213,7 @@ app.post('/api/process-pdf', async (req, res) => {
     const normalizedRows = rawRows.map(row => {
       const filled = [...row];
       while (filled.length < maxColumns) {
-        filled.push(undefined);
+        filled.push("");
       }
       return filled;
     });
